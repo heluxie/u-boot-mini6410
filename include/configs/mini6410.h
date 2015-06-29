@@ -390,6 +390,7 @@
 #else
 #define CFG_UBOOT_BASE		0x57e00000
 #endif
+//u-boot的运行地址
 #define CFG_PHY_UBOOT_BASE	MEMORY_BASE_ADDRESS + 0x7e00000
 
 #define CFG_ENV_OFFSET		0x00040000
