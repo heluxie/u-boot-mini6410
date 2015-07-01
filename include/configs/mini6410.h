@@ -163,12 +163,12 @@
 #include <cmd_confdefs.h>
 
 #define CONFIG_BOOTDELAY	3
-#define CONFIG_BOOTARGS    	"root=/dev/mtdblock2 console=ttySAC0,115200"
+#define CONFIG_BOOTARGS    	"root=/dev/nfs nfsroot=192.168.7.242:/home/rock/nfsroot ip=192.168.5.219:192.168.7.242:192.168.5.254:255.255.255.0:www.qq.com:eth0:off console=ttySAC0,115200"
 #define CONFIG_ETHADDR		08:90:90:90:90:90
 #define CONFIG_NETMASK          255.255.255.0
-#define CONFIG_IPADDR		192.168.1.230
-#define CONFIG_SERVERIP		192.168.1.88
-#define CONFIG_GATEWAYIP	192.168.1.1
+#define CONFIG_IPADDR		192.168.5.219
+#define CONFIG_SERVERIP		192.168.7.242
+#define CONFIG_GATEWAYIP	192.168.5.254
 
 #define CONFIG_ZERO_BOOTDELAY_CHECK
 
@@ -184,7 +184,7 @@
  * Miscellaneous configurable options
  */
 #define CFG_LONGHELP				/* undef to save memory		*/
-#define CFG_PROMPT		"MINI6410 # "	/* Monitor Command Prompt	*/
+#define CFG_PROMPT		"Rock 6410 # "	/* Monitor Command Prompt	*/
 #define CFG_CBSIZE		256		/* Console I/O Buffer Size	*/
 #define CFG_PBSIZE		384		/* Print Buffer Size */
 #define CFG_MAXARGS		16		/* max number of command args	*/
@@ -379,7 +379,7 @@
  * SMDK6400 board specific data
  */
 
-#define CONFIG_IDENT_STRING	" for FriendlyARM MINI6410"
+#define CONFIG_IDENT_STRING	" MINI6410 for Rock Lee"
 
 /* total memory required by uboot */
 #define CFG_UBOOT_SIZE		(2*1024*1024)
@@ -427,16 +427,11 @@
 /*#define CFG_NAND_LARGEPAGE_SAVEENV*/
 #define CFG_NAND_HWECC
 //#define CFG_NAND_FLASH_BBT
-#define CONFIG_BOOTCOMMAND	"nand read.i c0008000 80000 500000;bootm c0008000"
+#define CONFIG_BOOTCOMMAND	"tftp 0xc0008000 zImage;bootm 0xc0008000"
 #elif defined(CONFIG_BOOT_MOVINAND)
 #define CFG_ENV_IS_IN_MOVINAND
-#define CONFIG_BOOTCOMMAND	"nand read.i c0008000 80000 500000;bootm c0008000"
+#define CONFIG_BOOTCOMMAND	"tftp 0xc0008000 zImage;bootm 0xc0008000"
 #define CFG_NAND_HWECC
-#elif defined(CONFIG_BOOT_ONENAND) || defined(CONFIG_BOOT_ONENAND_IROM)
-#define CFG_ONENAND_BASE 	(0x70100000)
-#define CFG_MAX_ONENAND_DEVICE	1
-#define CFG_ENV_IS_IN_ONENAND
-#define CONFIG_BOOTCOMMAND	"onenand read c0008000 40000 1c0000;bootm c0008000"
 #else
 # error Define one of CONFIG_BOOT_{NAND|MOVINAND|ONENAND|ONENAND_IROM}
 #endif

@@ -252,6 +252,7 @@ $(obj)u-boot.srec:	$(obj)u-boot
 $(obj)u-boot.bin:	$(obj)u-boot
 		$(OBJCOPY) ${OBJCFLAGS} -O binary $< $@
 		$(OBJDUMP) -d $< > $<.dis
+		cp $@ /tftp
 
 $(obj)u-boot.img:	$(obj)u-boot.bin
 		./tools/mkimage -A $(ARCH) -T firmware -C none \
