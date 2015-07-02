@@ -137,6 +137,7 @@ reset:
 	/*
 	 * set the cpu to SVC32 mode
 	 */
+	#设置svc32模式,并且关闭fiq/irq
 	mrs	r0,cpsr
 	bic	r0,r0,#0x1f
 	orr	r0,r0,#0xd3
@@ -161,79 +162,29 @@ cpu_init_crit:
 	 * flush v4 I/D caches
 	 */
 	mov	r0, #0
+	#使icache/dcache invalidate
 	mcr	p15, 0, r0, c7, c7, 0	/* flush v3/v4 cache */
+	#Invalidate unified TLB
 	mcr	p15, 0, r0, c8, c7, 0	/* flush v4 TLB */
 
 	/*
 	 * disable MMU stuff and caches
 	 */
+	#将控制寄存器中的数值读取到r0中
 	mrc	p15, 0, r0, c1, c0, 0
 	bic	r0, r0, #0x00002300	@ clear bits 13, 9:8 (--V- --RS)
 	bic	r0, r0, #0x00000087	@ clear bits 7, 2:0 (B--- -CAM)
+	#Fault checking enabled
 	orr	r0, r0, #0x00000002	@ set bit 2 (A) Align
+	#使能icache(icache在没有开启MMU时也能使用,但dcache只能在开启MMU后使用)
 	orr	r0, r0, #0x00001000	@ set bit 12 (I) I-Cache
 	mcr	p15, 0, r0, c1, c0, 0
 
 	/* Peri port setup */
+	#设置外围端口的地址空间0x70000000-0x7fffffff,供外设使用
 	ldr	r0, =0x70000000
 	orr	r0, r0, #0x13
-    	mcr	p15,0,r0,c15,c2,4       @ 256M(0x70000000-0x7fffffff)
-
-#ifdef CONFIG_BOOT_ONENAND
-	ldr	r0, =0x70000000		@ onenand controller setup
-	orr	r0, r0, #0x100000
-	ldr	r1, =0x4000
-	orr	r1, r1, #0xe0
-	str	r1, [r0]
-
-#if defined(CONFIG_S3C6410) || defined(CONFIG_S3C6430)
-	orr	r0, r0, #300		@ disable watchdog
-	mov	r1, #1
-	str	r1, [r0]
-
-	mov	r1, #0x23000000		@ start buffer register
-	orr	r1, r1, #0x30000
-	orr	r1, r1, #0xc800
-#else
-	mov	r1, =0x20000000		@ start buffer register
-	orr	r1, r1, #0xc30000
-	orr	r1, r1, #0xc800
-#endif
-
-	sub	r0, r1, #0x0400		@ start address1 register
-
-	ldr	r2, [r1, #0x84]		@ ecc bypass
-	orr	r2, r2, #0x100
-	str	r2, [r1, #0x84]
-
-	mov	r3, #0x0		@ DFS, FBA
-	str	r3, [r0, #0x00]
-	str	r3, [r0, #0x04]		@ select dataram for DDP as 0
-
-	mov	r4, #0x104		@ interrupt register
-	mov	r5, #0x0002		@ FPA, FSA
-	mov	r6, #0x0800		@ BSA
-
-onenand_bl1_load:
-	str	r5, [r0, #0x1c]		@ save FPA, FSA
-	orr	r6, r6, #0x02		@ BSC
-	str	r6, [r1, #0x00]		@ save BSA, BSC
-	str	r3, [r1, r4]		@ clear interrupt
-	str	r3, [r1, #0x80]		@ write load command
-
-	mov	r7, #0x100		@ need small delay
-
-onenand_wait_loop1:
-	subs	r7, r7, #0x1
-	bne	onenand_wait_loop1
-
-	add	r5, r5, #0x2		@ next FPA, FSA
-	sub	r6, r6, #0x2
-	add	r6, r6, #0x200		@ next BSA
-	cmp	r5, #0x8
-	bne	onenand_bl1_load
-#endif
-
+   	mcr	p15,0,r0,c15,c2,4       @ 256M(0x70000000-0x7fffffff)
 	/*
 	 * Go setup Memory and board specific bits prior to relocation.
 	 */
@@ -243,30 +194,20 @@ onenand_wait_loop1:
 	 * and actually, memory controller must be configured before U-Boot
 	 * is running in ram.
 	 */
+	#判断当前u-boot是否在内存RAM中运行,如果是那么运行after_copy,否则顺序执行
 	ldr	r0, =0xff000fff
 	bic	r1, pc, r0		/* r0 <- current base addr of code */
+	/*
+	 * _TEXT_BASE也就是TEXT_BASE在board/samsung/smdk6410/config.mk
+	 * 中定位为0xc7e00000(mmu on),0x57e00000(mmu off)
+	 */
 	ldr	r2, _TEXT_BASE		/* r1 <- original base addr in ram */
 	bic	r2, r2, r0		/* r0 <- current base addr of code */
 	cmp     r1, r2                  /* compare r0, r1                  */
 	beq     after_copy		/* r0 == r1 then skip flash copy   */
 
-#ifdef CONFIG_BOOT_NOR			/* relocate U-Boot to RAM */
-	adr	r0, _start		/* r0 <- current position of code   */
-	ldr	r1, _TEXT_PHY_BASE	/* r1 <- destination                */
-	ldr	r2, _armboot_start
-	ldr	r3, _bss_start
-	sub	r2, r3, r2		/* r2 <- size of armboot            */
-	add	r2, r0, r2		/* r2 <- source end address         */
-
-nor_copy_loop:
-	ldmia	r0!, {r3-r10}		/* copy from source address [r0]    */
-	stmia	r1!, {r3-r10}		/* copy to   target address [r1]    */
-	cmp	r0, r2			/* until source end addreee [r2]    */
-	ble	nor_copy_loop
-	b	after_copy
-#endif
-
 #ifdef CONFIG_BOOT_NAND
+	#copy 4k
 	mov	r0, #0x1000
 	bl	copy_from_nand
 #endif
@@ -277,92 +218,8 @@ nor_copy_loop:
 	b	after_copy
 #endif
 
-#ifdef CONFIG_BOOT_ONENAND
-	ldr	sp, =0x50000000		@ temporary stack
-
-#ifdef CONFIG_S3C6400
-	mov	r1, =0x20000000		@ start buffer register
-	orr	r1, r1, #0xc30000
-	orr	r1, r1, #0xc800
-#else
-	mov	r1, #0x23000000		@ start buffer register
-	orr	r1, r1, #0x30000
-	orr	r1, r1, #0xc800
-#endif
-
-	ldr	r2, [r1, #0x84]		@ ecc bypass
-	orr	r2, r2, #0x100
-	str	r2, [r1, #0x84]
-
-	sub	r0, r1, #0x0400		@ start address1 register
-
-	str	r3, [r0, #0x00]
-	str	r3, [r0, #0x04]		@ select dataram for DDP as 0
-
-	mov	r4, #0x104		@ interrupt register
-
-	mov	r6, #0x0c00		@ fixed dataram1 sector number
-	str	r6, [r1, #0x00]
-
-	mov	r3, #0x0		@ DFS, FBA
-	mov	r5, #0x0000		@ FPA, FSA
-	ldr	r9, =CFG_PHY_UBOOT_BASE	@ destination
-
-onenand_bl2_load:
-	str	r3, [r0, #0x00]		@ save DFS, FBA
-	str	r5, [r0, #0x1c]		@ save FPA, FSA
-
-	mov	r7, #0x0		@ clear interrupt
-	str	r7, [r1, r4]
-	str	r7, [r1, #0x80]		@ write load command
-
-	mov	r8, #0x1000
-onenand_wait_loop2:
-	subs	r8, r8, #0x1
-	bne	onenand_wait_loop2
-
-onenand_wait_int:			@ wait INT and RI
-	ldr	r7, [r1, r4]
-	mov	r8, #0x8000
-	orr	r8, r8, #0x80
-	tst	r7, r8
-	beq	onenand_wait_int
-
-	mov	r7, #0x0		@ clear interrupt
-	str	r7, [r1, r4]
-
-	mov	r8, #0xc00		@ source address (dataram1)
-	mov	r10, #0x40		@ copy loop count (64 = 2048 / 32)
-
-	stmia	sp, {r0-r7}		@ backup
-
-onenand_copy_to_ram:
-	ldmia	r8!, {r0-r7}
-	stmia	r9!, {r0-r7}
-	subs	r10, r10, #0x1
-	bne	onenand_copy_to_ram
-
-	ldmia	sp, {r0-r7}		@ restore
-
-	add	r5, r5, #0x4		@ next FPA
-	cmp	r5, #0x100		@ last FPA?
-	bne	onenand_bl2_load
-
-	/* next block */
-	mov	r5, #0x0		@ reset FPA
-	add	r3, r3, #0x1		@ next FBA
-	cmp	r3, #0x2		@ last FBA?
-	bne	onenand_bl2_load
-	b	after_copy
-#endif
-
-#ifdef CONFIG_BOOT_ONENAND_IROM
-	ldr	sp, _TEXT_PHY_BASE
-	bl	onenand_bl2_copy
-	b	after_copy
-#endif
-
 after_copy:
+	#GPIO寄存器基址
 	ldr	r0, =ELFIN_GPIO_BASE
 	ldr	r1, =0xC00
 	str	r1, [r0, #GPPDAT_OFFSET]
@@ -377,20 +234,25 @@ after_copy:
 	bic	r1, r1, #0xc0000000
 	orr	r1, r1, #0x40000000
 	str	r1, [r0, #GPFCON_OFFSET]
-	
-	
+
 #ifdef CONFIG_ENABLE_MMU
+#开启MMU
 enable_mmu:
 	/* enable domain access */
+	#D0-D7设置成manager模式
 	ldr	r5, =0x0000ffff
 	mcr	p15, 0, r5, c3, c0, 0		@ load domain access register
 
 	/* Set the TTB register */
+	#获取页表基址, 0xc7e30000
 	ldr	r0, _mmu_table_base
+	#获取u-boot在内存中的二进制文件物理地址,0x57e00000
 	ldr	r1, =CFG_PHY_UBOOT_BASE
 	ldr	r2, =0xfff00000
+	#r0保留页表的段内地址,0x30000
 	bic	r0, r0, r2
 	orr	r1, r0, r1
+	#保存页表基址,0x57e30000
 	mcr	p15, 0, r1, c2, c0, 0
 
 	/* Enable the MMU */
@@ -450,17 +312,21 @@ _mmu_table_base:
 copy_from_nand:
 	mov	r10, lr		/* save return address */
 
+	#需要copy的大小保存到r9中
 	mov	r9, r0
 	/* get ready to call C functions */
+	#_TEXT_PHY_BASE也就是CFG_PHY_UBOOT_BASE = 0x57e00000
 	ldr	sp, _TEXT_PHY_BASE	/* setup temp stack pointer */
 	sub	sp, sp, #12
 	mov	fp, #0			/* no previous frame, so fp=0 */
 	mov	r9, #0x1000
 	bl	copy_uboot_to_ram
 
+	#判断copy过程是否成功
 3:	tst 	r0, #0x0
 	bne	copy_failed
 
+	#0x0c000000是stepping stone的物理地址
 	ldr	r0, =0x0c000000
 	ldr	r1, _TEXT_PHY_BASE
 1:	ldr	r3, [r0], #4
@@ -468,9 +334,11 @@ copy_from_nand:
 	teq	r3, r4
 	bne	compare_failed	/* not matched */
 	subs	r9, r9, #4
+	#比较stepping stone和0x57e00000的前4k内容
 	bne	1b
 
 4:	mov	lr, r10		/* all is OK */
+	#返回下一语句 --- after_copy
 	mov	pc, lr
 
 copy_failed:

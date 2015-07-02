@@ -354,7 +354,7 @@ nand_asm_init:
 	      (\d << 5) | (1<<4) | (\c << 3) | (\b << 2) | (1<<1)
 .endm
 .section .mmudata, "a"
-	.align 14
+	.align 14 /* 2 ^ 14也就是0x4000, 页表大小是16k*/
 	// the following alignment creates the mmu table at address 0x4000.
 	.globl mmu_table
 mmu_table:
@@ -371,6 +371,7 @@ mmu_table:
 	.endr
 
 	// 128MB for SDRAM 0xC0000000 -> 0x50000000
+	#对128M物理内存开启buffer和cache
 	.set __base, 0x500
 	.rept 0xC80 - 0xC00
 	FL_SECTION_ENTRY __base,3,0,1,1

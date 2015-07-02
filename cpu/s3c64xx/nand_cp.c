@@ -125,6 +125,7 @@ int copy_uboot_to_ram (void)
 	 * 128KB ->240KB because of U-Boot size increase. by scsuh
 	 * So, read 0x3c000 bytes not 0x20000(128KB).
 	 */
+	//copy 240kÊý¾Ý
 	return nandll_read_blocks(CFG_PHY_UBOOT_BASE, 0x3c000, large_block);
 }
 
