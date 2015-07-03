@@ -371,7 +371,11 @@ mmu_table:
 	.endr
 
 	// 128MB for SDRAM 0xC0000000 -> 0x50000000
-	#对128M物理内存开启buffer和cache
+	/*
+	 * 将0xC0000000-0xC8000000映射到0x50000000-0x58000000
+	 * 并开启buffer和cache.
+	 * 0x50000000-0x58000000也映射到0x50000000-0x58000000
+	 */
 	.set __base, 0x500
 	.rept 0xC80 - 0xC00
 	FL_SECTION_ENTRY __base,3,0,1,1

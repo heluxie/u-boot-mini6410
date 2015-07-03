@@ -261,26 +261,8 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 	len_ptr = (ulong *)data;
 
-#if defined(__PPC__)
-	if (hdr->ih_arch != IH_CPU_PPC)
-#elif defined(__ARM__)
+#if defined(__ARM__)
 	if (hdr->ih_arch != IH_CPU_ARM)
-#elif defined(__I386__)
-	if (hdr->ih_arch != IH_CPU_I386)
-#elif defined(__mips__)
-	if (hdr->ih_arch != IH_CPU_MIPS)
-#elif defined(__nios__)
-	if (hdr->ih_arch != IH_CPU_NIOS)
-#elif defined(__M68K__)
-	if (hdr->ih_arch != IH_CPU_M68K)
-#elif defined(__microblaze__)
-	if (hdr->ih_arch != IH_CPU_MICROBLAZE)
-#elif defined(__nios2__)
-	if (hdr->ih_arch != IH_CPU_NIOS2)
-#elif defined(__blackfin__)
-	if (hdr->ih_arch != IH_CPU_BLACKFIN)
-#elif defined(__avr32__)
-	if (hdr->ih_arch != IH_CPU_AVR32)
 #else
 # error Unknown CPU type
 #endif

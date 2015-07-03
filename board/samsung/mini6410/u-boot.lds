@@ -34,8 +34,6 @@ SECTIONS
 	{
 	  cpu/s3c64xx/start.o	(.text)
 	  cpu/s3c64xx/s3c6410/cpu_init.o	(.text)
-	  cpu/s3c64xx/onenand_cp.o	(.text)
-	  cpu/s3c64xx/nand_cp.o	(.text)
 	  board/samsung/mini6410/nand_6410.fo
 	  cpu/s3c64xx/movi.o (.text)
 	  *(.text)

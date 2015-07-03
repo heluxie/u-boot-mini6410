@@ -244,7 +244,7 @@ enable_mmu:
 	mcr	p15, 0, r5, c3, c0, 0		@ load domain access register
 
 	/* Set the TTB register */
-	#获取页表基址, 0xc7e30000
+	#获取页表基址的虚拟地址, 0xc7e30000
 	ldr	r0, _mmu_table_base
 	#获取u-boot在内存中的二进制文件物理地址,0x57e00000
 	ldr	r1, =CFG_PHY_UBOOT_BASE
@@ -270,8 +270,10 @@ skip_hw_init:
 	/* Set up the stack						    */
 stack_setup:
 #ifdef CONFIG_MEMORY_UPPER_CODE
+	#CFG_UBOOT_BASE=0xc7e00000,CFG_UBOOT_SIZE=2MB
 	ldr	sp, =(CFG_UBOOT_BASE + CFG_UBOOT_SIZE - 0xc)
 #else
+	#_TEXT_BASE=0xc7e00000
 	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
 	sub	r0, r0, #CFG_MALLOC_LEN	/* malloc area                      */
 	sub	r0, r0, #CFG_GBL_DATA_SIZE /* bdinfo                        */

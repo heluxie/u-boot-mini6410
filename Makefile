@@ -205,7 +205,7 @@ LIBS += drivers/libdrivers.a
 LIBS += drivers/nand/libnand.a
 LIBS += drivers/nand_legacy/libnand_legacy.a
 # add to support onenand. by scsuh
-LIBS += drivers/onenand/libonenand.a
+#LIBS += drivers/onenand/libonenand.a
 ifeq ($(CPU),mpc83xx)
 LIBS += drivers/qe/qe.a
 endif

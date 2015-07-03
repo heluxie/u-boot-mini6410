@@ -345,11 +345,6 @@ defined(CONFIG_MINI6410)
 	NAND_Init();
 #endif
 
-#if defined(CONFIG_ONENAND)
-	puts ("OneNAND: ");
-	onenand_init();		/* go init the One-NAND */
-#endif
-
 #if defined(CONFIG_BOOT_MOVINAND)
 	puts ("MMC:     ");
 
