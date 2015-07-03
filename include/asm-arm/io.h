@@ -24,7 +24,6 @@
 
 #include <linux/types.h>
 #include <asm/byteorder.h>
-#include <asm/memory.h>
 #if 0	/* XXX###XXX */
 #include <asm/arch/hardware.h>
 #endif	/* XXX###XXX */
