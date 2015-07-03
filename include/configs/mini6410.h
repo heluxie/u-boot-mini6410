@@ -82,9 +82,11 @@
 /*
  * Size of malloc() pool
  */
+//malloc区域长度为0x120000
 #define CFG_MALLOC_LEN		(CFG_ENV_SIZE + 1024*1024)
 #define CFG_GBL_DATA_SIZE	128	/* size in bytes reserved for initial data */
 
+//512k的栈区
 #define CFG_STACK_SIZE		512*1024
 
 /*
@@ -354,6 +356,7 @@
 #define DMC_DDR_REFRESH_PRD	(((Startup_HCLK / 1000 * DDR_tREFRESH) - 1) / 1000000) 	// TRM 2656
 #define DMC_DDR_USER_CONFIG	1							// 2b01 : mDDR
 
+//mini6410实际上只有一个dram芯片
 #define CONFIG_NR_DRAM_BANKS	1	   /* we have 2 bank of DRAM */
 #define PHYS_SDRAM_1		MEMORY_BASE_ADDRESS /* SDRAM Bank #1 */
 //#define PHYS_SDRAM_1_SIZE	0x08000000 /* 128 MB */

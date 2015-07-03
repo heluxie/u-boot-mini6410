@@ -1,4 +1,4 @@
-/*
+﻿/*
  * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Marius Groeger <mgroeger@sysgo.de>
@@ -63,6 +63,7 @@ static void setup_videolfb_tag (gd_t *gd);
 # endif
 
 
+//全局变量params
 static struct tag *params;
 #endif /* CONFIG_SETUP_MEMORY_TAGS || CONFIG_CMDLINE_TAG || CONFIG_INITRD_TAG */
 
@@ -90,6 +91,7 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	char *commandline = getenv ("bootargs");
 #endif
 
+	//theKernel = 0x50008000
 	theKernel = (void (*)(int, int, uint))ntohl(hdr->ih_ep);
 
 	/*
@@ -103,14 +105,8 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		printf ("## Loading Ramdisk Image at %08lx ...\n", addr);
 
 		/* Copy header so we can blank CRC field for re-calculation */
-#ifdef CONFIG_HAS_DATAFLASH
-		if (addr_dataflash (addr)) {
-			read_dataflash (addr, sizeof (image_header_t),
-					(char *) &header);
-		} else
-#endif
-			memcpy (&header, (char *) addr,
-				sizeof (image_header_t));
+		memcpy (&header, (char *) addr,
+			sizeof (image_header_t));
 
 		if (ntohl (hdr->ih_magic) != IH_MAGIC) {
 			printf ("Bad Magic Number\n");
@@ -137,13 +133,6 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 		data = addr + sizeof (image_header_t);
 		len = ntohl (hdr->ih_size);
 
-#ifdef CONFIG_HAS_DATAFLASH
-		if (addr_dataflash (addr)) {
-			read_dataflash (data, len, (char *) CFG_LOAD_ADDR);
-			data = CFG_LOAD_ADDR;
-		}
-#endif
-
 		if (verify) {
 			ulong csum = 0;
 
@@ -166,15 +155,6 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 			SHOW_BOOT_PROGRESS (-13);
 			do_reset (cmdtp, flag, argc, argv);
 		}
-
-#if defined(CONFIG_B2) || defined(CONFIG_EVB4510) || defined(CONFIG_ARMADILLO)
-		/*
-		 *we need to copy the ramdisk to SRAM to let Linux boot
-		 */
-		memmove ((void *) ntohl(hdr->ih_load), (uchar *)data, len);
-		data = ntohl(hdr->ih_load);
-#endif /* CONFIG_B2 || CONFIG_EVB4510 */
-
 		/*
 		 * Now check if we have a multifile image
 		 */
@@ -246,6 +226,7 @@ void do_bootm_linux (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[],
 	setup_commandline_tag (bd, commandline);
 #endif
 #ifdef CONFIG_INITRD_TAG
+	//initrd_start和initrd_end为0
 	if (initrd_start && initrd_end)
 		setup_initrd_tag (bd, initrd_start, initrd_end);
 #endif
@@ -302,9 +283,11 @@ static void setup_memory_tags (bd_t *bd)
 		params->hdr.tag = ATAG_MEM;
 		params->hdr.size = tag_size (tag_mem32);
 
+		//设置dram的起始和大小,分别是0x50000000,0x10000000
 		params->u.mem.start = bd->bi_dram[i].start;
 		params->u.mem.size = bd->bi_dram[i].size;
 
+		//params指向下一个参数的起始地址
 		params = tag_next (params);
 	}
 }

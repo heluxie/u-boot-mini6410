@@ -75,6 +75,7 @@ int disable_interrupts(void)
 	return (old & 0x80) == 0;
 }
 #else
+//mini6410
 void enable_interrupts(void)
 {
 	return;

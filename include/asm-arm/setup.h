@@ -1,4 +1,4 @@
-/*
+﻿/*
  *  linux/include/asm/setup.h
  *
  *  Copyright (C) 1997-1999 Russell King
@@ -84,6 +84,7 @@ struct param_struct {
 #define ATAG_NONE	0x00000000
 
 struct tag_header {
+	//整个struct tag占用的字的个数
 	u32 size;
 	u32 tag;
 };
@@ -206,9 +207,12 @@ struct tag_memclk {
 };
 
 struct tag {
+	//记录tag类型和占用的空间
 	struct tag_header hdr;
+	//根据hdr中的tag选择下面的结构
 	union {
 		struct tag_core		core;
+		//ATAG_MEM
 		struct tag_mem32	mem;
 		struct tag_videotext	videotext;
 		struct tag_ramdisk	ramdisk;
@@ -216,6 +220,7 @@ struct tag {
 		struct tag_serialnr	serialnr;
 		struct tag_revision	revision;
 		struct tag_videolfb	videolfb;
+		//ATAG_CMDLINE
 		struct tag_cmdline	cmdline;
 
 		/*

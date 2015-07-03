@@ -296,6 +296,7 @@ clbss_l:
 	ble	clbss_l
 
 	ldr	pc, _start_armboot
+#c语言环境设置完成后就可以调用c函数了
 
 _start_armboot:
 	.word start_armboot

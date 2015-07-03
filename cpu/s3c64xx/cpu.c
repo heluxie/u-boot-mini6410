@@ -1,4 +1,4 @@
-/*
+﻿/*
  * (C) Copyright 2004 Texas Insturments
  *
  * (C) Copyright 2002
@@ -127,7 +127,9 @@ int cleanup_before_linux (void)
 
 	/* flush I/D-cache */
 	i = 0;
+	//使icache/dache无效
 	asm ("mcr p15, 0, %0, c7, c7, 0": :"r" (i));  /* invalidate both caches and flush btb */
+	//等待以上指令完成
 	asm ("mcr p15, 0, %0, c7, c10, 4": :"r" (i)); /* mem barrier to sync things */
 	return(0);
 }

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * (C) Copyright 2000-2006
  * Wolfgang Denk, DENX Software Engineering, wd@denx.de.
  *
@@ -173,6 +173,7 @@ int do_bootm (cmd_tbl_t *cmdtp, int flag, int argc, char *argv[])
 
 #ifdef CONFIG_ZIMAGE_BOOT
 #define LINUX_ZIMAGE_MAGIC	0x016f2818
+	//跳过linux/arch/arm/boot/compressed/head.S的前9条指令
 	if (*(ulong *)(addr + 9*4) == LINUX_ZIMAGE_MAGIC) {
 		printf("Boot with zImage\n");
 		addr = virt_to_phys(addr);
@@ -422,39 +423,6 @@ after_header_check:
 	    do_bootm_linux  (cmdtp, flag, argc, argv,
 			     addr, len_ptr, verify);
 	    break;
-	case IH_OS_NETBSD:
-	    do_bootm_netbsd (cmdtp, flag, argc, argv,
-			     addr, len_ptr, verify);
-	    break;
-
-#ifdef CONFIG_LYNXKDI
-	case IH_OS_LYNXOS:
-	    do_bootm_lynxkdi (cmdtp, flag, argc, argv,
-			     addr, len_ptr, verify);
-	    break;
-#endif
-
-	case IH_OS_RTEMS:
-	    do_bootm_rtems (cmdtp, flag, argc, argv,
-			     addr, len_ptr, verify);
-	    break;
-
-#if (CONFIG_COMMANDS & CFG_CMD_ELF)
-	case IH_OS_VXWORKS:
-	    do_bootm_vxworks (cmdtp, flag, argc, argv,
-			      addr, len_ptr, verify);
-	    break;
-	case IH_OS_QNX:
-	    do_bootm_qnxelf (cmdtp, flag, argc, argv,
-			      addr, len_ptr, verify);
-	    break;
-#endif /* CFG_CMD_ELF */
-#ifdef CONFIG_ARTOS
-	case IH_OS_ARTOS:
-	    do_bootm_artos  (cmdtp, flag, argc, argv,
-			     addr, len_ptr, verify);
-	    break;
-#endif
 	}
 
 	SHOW_BOOT_PROGRESS (-9);
