@@ -385,6 +385,10 @@
 #define CONFIG_IDENT_STRING	" MINI6410 for Rock Lee"
 
 /* total memory required by uboot */
+/*
+ * u-boot需要的所有内存,包括u-boot.bin 最大240k, malloc区域(env+1MB)0x120000,
+ * stack 0x80000, gd区域36byte
+ */
 #define CFG_UBOOT_SIZE		(2*1024*1024)
 
 /* base address for uboot */

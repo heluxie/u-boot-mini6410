@@ -1,4 +1,4 @@
-/*
+﻿/*
  * (C) Copyright 2002
  * Sysgo Real-Time Solutions, GmbH <www.elinos.com>
  * Marius Groeger <mgroeger@sysgo.de>
@@ -41,7 +41,9 @@ typedef struct bd_info {
     unsigned long	bi_ip_addr;	/* IP Address */
     unsigned char	bi_enetaddr[6]; /* Ethernet adress */
     struct environment_s	       *bi_env;
+	//对应board特定头文件的MACH_TYPE,mini6410就是2520
     ulong	        bi_arch_number;	/* unique id for this board */
+	//tag链表头指针
     ulong	        bi_boot_params;	/* where this board expects params */
     struct				/* RAM configuration */
     {
