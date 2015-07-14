@@ -43,7 +43,7 @@ typedef struct bd_info {
     struct environment_s	       *bi_env;
 	//对应board特定头文件的MACH_TYPE,mini6410就是2520
     ulong	        bi_arch_number;	/* unique id for this board */
-	//tag链表头指针
+	//tag链表头指针,mini6410下是0x50000100
     ulong	        bi_boot_params;	/* where this board expects params */
     struct				/* RAM configuration */
     {
