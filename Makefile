@@ -1,5 +1,6 @@
 #
 # newbie adds a comment for test.
+# master adds a comment for testing.
 # (C) Copyright 2000-2006
 # Wolfgang Denk, DENX Software Engineering, wd@denx.de.
 #
